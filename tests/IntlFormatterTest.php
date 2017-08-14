@@ -29,6 +29,11 @@ class IntlFormatterTest extends TestCase
         // $m = new Money(100, new Currency('EUR'));
         //
         // $this->assertEquals('1,00 €', $f->format($m));
-        return true;
+
+        // Stop here and mark this test as incomplete.
+$this->markTestIncomplete(
+  'This test has not been implemented yet.'
+);
+
     }
 }
