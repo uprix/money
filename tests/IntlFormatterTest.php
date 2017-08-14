@@ -31,7 +31,7 @@ class IntlFormatterTest extends TestCase
         // $this->assertEquals('1,00 €', $f->format($m));
 
         // Stop here and mark this test as incomplete.
-$this->markTestIncomplete(
+$this->markTekkstIncomplete(
   'This test has not been implemented yet.'
 );
 
