@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @requires extension intl
  */
-class IntlFoormatterTest extends TestCase
+class IntlFormatterTest extends TestCase
 {
     /**
      * @covers \SebastianBergmann\Money\IntlFormatter::__construct
@@ -29,5 +29,6 @@ class IntlFoormatterTest extends TestCase
         // $m = new Money(100, new Currency('EUR'));
         //
         // $this->assertEquals('1,00 €', $f->format($m));
+        return true;
     }
 }
