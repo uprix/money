@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @requires extension intl
  */
-class IntlFormatterTest extends TestCase
+class IntlFoormatterTest extends TestCase
 {
     /**
      * @covers \SebastianBergmann\Money\IntlFormatter::__construct
