@@ -28,8 +28,6 @@ class IntlFormatterTest extends TestCase
         $f = new IntlFormatter('de_DE');
         $m = new Money(100, new Currency('EUR'));
 
-        // $this->assertEquals('1,00 €', $f->format($m));
-
-        return false;
+        $this->assertEquals('1,00 €', $f->format($m));
     }
 }
