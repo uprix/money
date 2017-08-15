@@ -30,6 +30,6 @@ class IntlFormatterTest extends TestCase
 
         // $this->assertEquals('1,00 €', $f->format($m));
 
-        retrn false;
+        return false;
     }
 }
