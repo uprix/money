@@ -17,9 +17,13 @@ pipeline {
                 sh 'mkdir build/phpdox'
             }
         }
-        // stage('PHP Syntax check') { steps { sh 'phpstan analyse --autoload-file=src/autoload.php src tests' } }
-        stage('PHP Syntax check') { steps { sh 'find . -name *php -type f -exec php -l {} \\;' } }
 
+        // stage('PHP Syntax check') { steps { sh 'phpstan analyse --autoload-file=src/autoload.php src tests' } }
+        stage('PHP Syntax check') {
+            steps {
+                sh 'find . -name *php -type f -exec php -l {} \\;'
+            }
+        }
 
         stage('Test'){
             steps {
@@ -34,28 +38,51 @@ pipeline {
                 /* BROKEN step([$class: 'hudson.plugins.crap4j.Crap4JPublisher', reportPattern: 'build/logs/crap4j.xml', healthThreshold: '10']) */
             }
         }
+
         stage('Checkstyle') {
             steps {
                 sh 'phpcs --report=checkstyle --report-file=`pwd`/build/logs/checkstyle.xml --standard=PSR2 --extensions=php --ignore=autoload.php --ignore=vendor/ . || exit 0'
                 checkstyle pattern: 'build/logs/checkstyle.xml'
             }
         }
-        stage('Lines of Code') { steps { sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' } }
+
+        stage('Lines of Code') { 
+            steps { 
+                sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' 
+            }
+        }
+
         stage('Copy paste detection') {
             steps {
                 sh 'phpcpd --log-pmd build/logs/pmd-cpd.xml --exclude vendor . || exit 0'
                 dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
             }
         }
-        /* -- SLOW
+        
         stage('Mess detection') {
             steps {
                 sh 'phpmd . xml build/phpmd.xml --reportfile build/logs/pmd.xml --exclude vendor/ || exit 0'
                 pmd canRunOnFailed: true, pattern: 'build/logs/pmd.xml'
             }
         }
-        stage('Software metrics') { steps { sh 'pdepend --jdepend-xml=build/logs/jdepend.xml --jdepend-chart=build/pdepend/dependencies.svg --overview-pyramid=build/pdepend/overview-pyramid.svg --ignore=vendor .' } }
-        stage('Generate documentation') { steps { sh 'phpdox -f build/phpdox.xml' } }
-        */
+
+        stage('Software metrics') {
+            steps {
+                sh 'pdepend --jdepend-xml=build/logs/jdepend.xml --jdepend-chart=build/pdepend/dependencies.svg --overview-pyramid=build/pdepend/overview-pyramid.svg --ignore=vendor .'
+            }
+        }
+
+        stage('Generate documentation') {
+            steps {
+                sh 'phpdox -f build/phpdox.xml'
+            }
+        }
+        
+    }
+
+    post {
+        always {
+            junit 'build/reports/**/*.xml'
+        }
     }
 }
