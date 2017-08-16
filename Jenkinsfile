@@ -17,7 +17,10 @@ pipeline {
                 sh 'mkdir build/phpdox'
             }
         }
-        stage('PHP Syntax check') { steps { sh 'phpstan analyse --autoload-file=src/autoload.php src tests' } }
+        // stage('PHP Syntax check') { steps { sh 'phpstan analyse --autoload-file=src/autoload.php src tests' } }
+        stage('PHP Syntax check') { steps { sh 'find . -name *php -type f -exec php -l {} \\;' } }
+
+
         stage('Test'){
             steps {
                 sh 'phpunit -c build/phpunit.xml || exit 0'
