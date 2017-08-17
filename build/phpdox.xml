@@ -6,7 +6,7 @@
    <exclude mask="*autoload.php" />
   </collector>
 
-  <generator output=".">
+  <generator output="build">
    <enrich base="logs">
     <source type="build" />
     <source type="git" />

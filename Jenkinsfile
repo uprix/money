@@ -82,8 +82,8 @@ pipeline {
 
     post {
         always {
-            junit allowEmptyResults: true, testResults: 'build/*xml'
-            archiveArtifacts 'build'
+            junit allowEmptyResults: true, testResults: 'build/logs/*xml'
+            archiveArtifacts 'build/logs/*, build/api/*'
         }
     }
 }
