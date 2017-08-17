@@ -47,17 +47,19 @@ pipeline {
 
         stage('Checkstyle') {
             steps {
-                sh 'phpcs --report=checkstyle --report-file=`pwd`/build/logs/checkstyle.xml --standard=PSR2 --extensions=php --ignore=autoload.php --ignore=vendor/ . || exit 0'
-                checkstyle pattern: 'build/logs/checkstyle.xml'
-            }
-
-            steps { 
-                sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' 
-            }
-
-            steps {
-                sh 'phpcpd --log-pmd build/logs/pmd-cpd.xml --exclude vendor . || exit 0'
-                dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
+                parallel (
+                     'Checkstyle': {
+                        sh 'phpcs --report=checkstyle --report-file=`pwd`/build/logs/checkstyle.xml --standard=PSR2 --extensions=php --ignore=autoload.php --ignore=vendor/ . || exit 0'
+                        checkstyle pattern: 'build/logs/checkstyle.xml'
+                    }, 
+                    'Lines of Code': {
+                        sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' 
+                    },
+                    'Copy paste': {
+                        sh 'phpcpd --log-pmd build/logs/pmd-cpd.xml --exclude vendor . || exit 0'
+                        dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
+                    }
+                )
             }
         }
         
