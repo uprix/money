@@ -81,8 +81,8 @@ pipeline {
             ])
             step([
                 $class: 'CloverPublisher',
-                cloverReportDir: 'build/logs/clover',
-                cloverReportFileName: 'clover.xml'
+                cloverReportDir: 'build/logs/coverage',
+                cloverReportFileName: 'index.xml'
             ])
             publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/logs/clover', reportFiles: 'index.html', reportName: 'Coverage Report Clover', reportTitles: '**CLover**'])
         }
