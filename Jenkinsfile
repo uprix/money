@@ -50,15 +50,11 @@ pipeline {
                 sh 'phpcs --report=checkstyle --report-file=`pwd`/build/logs/checkstyle.xml --standard=PSR2 --extensions=php --ignore=autoload.php --ignore=vendor/ . || exit 0'
                 checkstyle pattern: 'build/logs/checkstyle.xml'
             }
-        }
 
-        stage('Lines of Code') { 
             steps { 
                 sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' 
             }
-        }
 
-        stage('Copy paste detection') {
             steps {
                 sh 'phpcpd --log-pmd build/logs/pmd-cpd.xml --exclude vendor . || exit 0'
                 dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
