@@ -70,7 +70,6 @@ pipeline {
             checkstyle pattern: 'build/logs/checkstyle.xml'
             dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
             pmd canRunOnFailed: true, pattern: 'build/logs/pmd.xml'
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
             archiveArtifacts 'build/logs/*, build/api/*'
             step([$class: 'XUnitPublisher', testTimeMargin: '3000', thresholdMode: 1, thresholds: [[$class: 'FailedThreshold', failureNewThreshold: '', failureThreshold: '', unstableNewThreshold: '', unstableThreshold: ''], [$class: 'SkippedThreshold', failureNewThreshold: '', failureThreshold: '', unstableNewThreshold: '', unstableThreshold: '']], tools: [[$class: 'PHPUnitJunitHudsonTestType', deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/logs/*.xml', skipNoTestFiles: false, stopProcessingIfError: true]]])
             step([$class: 'MasterCoverageAction'])
@@ -84,7 +83,6 @@ pipeline {
                 cloverReportDir: 'build/logs',
                 cloverReportFileName: 'clover.xml'
             ])
-            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/logs/clover', reportFiles: 'index.html', reportName: 'Coverage Report Clover', reportTitles: '**CLover**'])
         }
     }
 }
