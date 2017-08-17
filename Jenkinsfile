@@ -66,7 +66,7 @@ pipeline {
 
     post {
         always {
-            junit allowEmptyResults: true, testResults: 'build/logs/**/*.xml'
+            junit allowEmptyResults: true, testResults: 'build/logs/junit.xml'
             checkstyle pattern: 'build/logs/checkstyle.xml'
             dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
             pmd canRunOnFailed: true, pattern: 'build/logs/pmd.xml'
