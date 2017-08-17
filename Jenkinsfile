@@ -37,7 +37,7 @@ pipeline {
                 
                 step([
                     $class: 'CloverPublisher',
-                    cloverReportDir: 'build/coverage',
+                    cloverReportDir: 'build/logs/clover',
                     cloverReportFileName: 'clover.xml'
                 ])
 
