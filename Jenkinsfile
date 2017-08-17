@@ -1,10 +1,9 @@
 pipeline {
-    agent any 
+    agent any
 
     stages {
         stage('Prepare') {
             steps {
-                sh 'composer update'
                 sh 'rm -rf build/api'
                 sh 'rm -rf build/coverage'
                 sh 'rm -rf build/logs'
@@ -28,19 +27,6 @@ pipeline {
         stage('Test'){
             steps {
                 sh 'phpunit -c build/phpunit.xml || exit 0'
-                step([
-                    $class: 'XUnitBuilder',
-                    thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
-                    tools: [[$class: 'JUnitType', pattern: 'build/logs/junit.xml']]
-                ])
-                publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
-                
-                step([
-                    $class: 'CloverPublisher',
-                    cloverReportDir: 'build/logs/clover',
-                    cloverReportFileName: 'clover.xml'
-                ])
-
                 /* step([$class: 'hudson.plugins.crap4j.Crap4JPublisher', reportPattern: 'build/logs/crap4j.xml', healthThreshold: '10']) */
             }
         }
@@ -50,23 +36,17 @@ pipeline {
                 parallel (
                      'Checkstyle': {
                         sh 'phpcs --report=checkstyle --report-file=`pwd`/build/logs/checkstyle.xml --standard=PSR2 --extensions=php --ignore=autoload.php --ignore=vendor/ . || exit 0'
-                        checkstyle pattern: 'build/logs/checkstyle.xml'
-                    }, 
+                    },
                     'Lines of Code': {
-                        sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .' 
+                        sh 'phploc --count-tests --exclude vendor/ --log-csv build/logs/phploc.csv --log-xml build/logs/phploc.xml .'
                     },
                     'Copy paste': {
                         sh 'phpcpd --log-pmd build/logs/pmd-cpd.xml --exclude vendor . || exit 0'
-                        dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
+                    },
+                    'Mess detection': {
+                        sh 'phpmd . xml build/phpmd.xml --reportfile build/logs/pmd.xml --exclude vendor/ || exit 0'
                     }
                 )
-            }
-        }
-        
-        stage('Mess detection') {
-            steps {
-                sh 'phpmd . xml build/phpmd.xml --reportfile build/logs/pmd.xml --exclude vendor/ || exit 0'
-                pmd canRunOnFailed: true, pattern: 'build/logs/pmd.xml'
             }
         }
 
@@ -81,13 +61,30 @@ pipeline {
                 sh 'phpdox -f build/phpdox.xml'
             }
         }
-        
+
     }
 
     post {
         always {
-            junit allowEmptyResults: true, testResults: 'build/logs/*xml'
+            junit allowEmptyResults: true, testResults: 'build/logs/**/*.xml'
+            checkstyle pattern: 'build/logs/checkstyle.xml'
+            dry canRunOnFailed: true, pattern: 'build/logs/pmd-cpd.xml'
+            pmd canRunOnFailed: true, pattern: 'build/logs/pmd.xml'
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/coverage', reportFiles: 'index.html', reportName: 'Coverage Report', reportTitles: ''])
             archiveArtifacts 'build/logs/*, build/api/*'
+            step([$class: 'XUnitPublisher', testTimeMargin: '3000', thresholdMode: 1, thresholds: [[$class: 'FailedThreshold', failureNewThreshold: '', failureThreshold: '', unstableNewThreshold: '', unstableThreshold: ''], [$class: 'SkippedThreshold', failureNewThreshold: '', failureThreshold: '', unstableNewThreshold: '', unstableThreshold: '']]])
+            step([$class: 'MasterCoverageAction'])
+            step([
+                $class: 'XUnitBuilder',
+                thresholds: [[$class: 'FailedThreshold', unstableThreshold: '1']],
+                tools: [[$class: 'JUnitType', pattern: 'build/logs/junit.xml']]
+            ])
+            step([
+                $class: 'CloverPublisher',
+                cloverReportDir: 'build/logs/clover',
+                cloverReportFileName: 'clover.xml'
+            ])
+            publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'build/logs/clover', reportFiles: 'index.html', reportName: 'Coverage Report Clover', reportTitles: '**CLover**'])
         }
     }
 }
